@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from referrals.models import Agent, Referral
+from referrals.models import Agent, Offer, Referral, ReferralEvent
 
 
 @pytest.fixture
@@ -56,6 +59,7 @@ def make_referral(db):
 
     return _make
 
+
 @pytest.fixture
 def make_referrals(db):
     def _make(**kwargs):
@@ -70,7 +74,39 @@ def make_referrals(db):
                 estimated_price=500_000,
             )
             defaults.update(kwargs)
-            referral = Referral.objects.create(**defaults)
+            Referral.objects.create(**defaults)
+
+    return _make
+
+
+@pytest.fixture
+def make_offer(db):
+    def _make(referral, agent, offered_at=None, **kwargs):
+        offered_at = offered_at or timezone.now()
+        defaults = dict(
+            score=0.5,
+            eligibility_snapshot={"eligible": True, "reasons": []},
+            expires_at=offered_at + timedelta(minutes=10),
+        )
+        defaults.update(kwargs)
+        offer = Offer.objects.create(referral=referral, agent=agent, **defaults)
+        # offered_at is auto_now_add, so it can only be overridden after creation.
+        Offer.objects.filter(pk=offer.pk).update(offered_at=offered_at)
+        offer.refresh_from_db()
+        return offer
+
+    return _make
+
+
+@pytest.fixture
+def make_event(db):
+    def _make(referral, event_type, created_at=None, **kwargs):
+        event = ReferralEvent.objects.create(referral=referral, event_type=event_type, **kwargs)
+        if created_at is not None:
+            # created_at is auto_now_add, so it can only be overridden after creation.
+            ReferralEvent.objects.filter(pk=event.pk).update(created_at=created_at)
+            event.refresh_from_db()
+        return event
 
     return _make
 
