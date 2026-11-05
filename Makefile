@@ -5,7 +5,7 @@ RUFF := ../$(VENV)/bin/ruff
 .PHONY: setup db-up db-down seed dev dev-backend dev-frontend test test-backend test-frontend lint
 
 setup: db-up
-	python3 -m venv $(VENV)
+	ipython3 -m venv $(VENV)
 	$(VENV)/bin/python -m pip install --quiet --upgrade pip
 	$(VENV)/bin/pip install --quiet -r backend/requirements.txt
 	cd backend && $(PY) manage.py migrate
@@ -20,6 +20,10 @@ db-down:
 
 seed:
 	cd backend && $(PY) manage.py migrate && $(PY) manage.py seed_trial
+
+
+shell:
+	cd backend && $(PY) manage.py shell
 
 dev:
 	@trap 'kill 0' INT TERM; \
