@@ -18,13 +18,36 @@ from referrals.events import record_event
 from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent
 
 FIRST_NAMES = [
-    "Avery", "Blake", "Casey", "Dakota", "Emerson", "Finley", "Harper", "Jordan",
-    "Kendall", "Logan", "Morgan", "Parker", "Quinn", "Reese", "Rowan", "Sawyer",
-    "Skyler", "Taylor",
+    "Avery",
+    "Blake",
+    "Casey",
+    "Dakota",
+    "Emerson",
+    "Finley",
+    "Harper",
+    "Jordan",
+    "Kendall",
+    "Logan",
+    "Morgan",
+    "Parker",
+    "Quinn",
+    "Reese",
+    "Rowan",
+    "Sawyer",
+    "Skyler",
+    "Taylor",
 ]
 LAST_NAMES = [
-    "Example", "Sample", "Testerson", "Placeholder", "Fakerly", "Mockwell",
-    "Demoson", "Stubbins", "Fixture", "Seedman",
+    "Example",
+    "Sample",
+    "Testerson",
+    "Placeholder",
+    "Fakerly",
+    "Mockwell",
+    "Demoson",
+    "Stubbins",
+    "Fixture",
+    "Seedman",
 ]
 
 MARKETS = {
@@ -41,8 +64,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--seed", type=int, default=1042)
-        parser.add_argument("--history", type=int, default=300,
-                            help="Older referrals to seed for dashboard history")
+        parser.add_argument(
+            "--history", type=int, default=300, help="Older referrals to seed for dashboard history"
+        )
 
     def handle(self, *args, **options):
         rng = random.Random(options["seed"])
@@ -108,96 +132,140 @@ class Command(BaseCommand):
         agents = {}
         # Denver market — the pilot's launch market, with every archetype present.
         agents["carol"] = self._make_agent(
-            "agent.carol", "Carol Fixture",
-            performance_score=0.92, active_referral_count=2,
+            "agent.carol",
+            "Carol Fixture",
+            performance_score=0.92,
+            active_referral_count=2,
             service_area_zip_prefixes=["802", "803"],
         )
         agents["devon"] = self._make_agent(
-            "agent.devon", "Devon Sample",
-            performance_score=0.78, service_area_zip_prefixes=["802", "803", "804"],
+            "agent.devon",
+            "Devon Sample",
+            performance_score=0.78,
+            service_area_zip_prefixes=["802", "803", "804"],
         )
         agents["noor"] = self._make_agent(
-            "agent.noor", "Noor Placeholder",
-            performance_score=None, active_referral_count=0,
+            "agent.noor",
+            "Noor Placeholder",
+            performance_score=None,
+            active_referral_count=0,
             service_area_zip_prefixes=["802", "804"],
         )
         agents["hank"] = self._make_agent(
-            "agent.hank", "Hank Atcapacity",
-            performance_score=0.85, capacity=3, active_referral_count=3,
+            "agent.hank",
+            "Hank Atcapacity",
+            performance_score=0.85,
+            capacity=3,
+            active_referral_count=3,
             service_area_zip_prefixes=["803", "804"],
         )
         agents["sabine"] = self._make_agent(
-            "agent.sabine", "Sabine Suspendik",
-            suspended=True, performance_score=None, active_referral_count=0,
+            "agent.sabine",
+            "Sabine Suspendik",
+            suspended=True,
+            performance_score=None,
+            active_referral_count=0,
         )
         agents["ivan"] = self._make_agent(
-            "agent.ivan", "Ivan Inactivov",
-            active=False, performance_score=0.9,
+            "agent.ivan",
+            "Ivan Inactivov",
+            active=False,
+            performance_score=0.9,
         )
         agents["lux"] = self._make_agent(
-            "agent.lux", "Lux Uppermarket",
-            minimum_price=900_000, maximum_price=3_000_000, performance_score=0.88,
+            "agent.lux",
+            "Lux Uppermarket",
+            minimum_price=900_000,
+            maximum_price=3_000_000,
+            performance_score=0.88,
             service_area_zip_prefixes=["802", "803", "804"],
         )
         # Out-of-market agents.
         agents["tessa"] = self._make_agent(
-            "agent.tessa", "Tessa Texworth",
-            licensed_states=["TX"], service_area_zip_prefixes=["750", "751", "752"],
+            "agent.tessa",
+            "Tessa Texworth",
+            licensed_states=["TX"],
+            service_area_zip_prefixes=["750", "751", "752"],
             performance_score=0.81,
         )
         agents["gary"] = self._make_agent(
-            "agent.gary", "Gary Georgison",
-            licensed_states=["GA"], service_area_zip_prefixes=["303", "300"],
+            "agent.gary",
+            "Gary Georgison",
+            licensed_states=["GA"],
+            service_area_zip_prefixes=["303", "300"],
             performance_score=0.66,
         )
         agents["fern"] = self._make_agent(
-            "agent.fern", "Fern Floridian",
-            licensed_states=["FL"], service_area_zip_prefixes=["331", "328"],
+            "agent.fern",
+            "Fern Floridian",
+            licensed_states=["FL"],
+            service_area_zip_prefixes=["331", "328"],
             performance_score=None,
         )
         agents["ash"] = self._make_agent(
-            "agent.ash", "Ash Arizonan",
-            licensed_states=["AZ"], service_area_zip_prefixes=["850", "852"],
+            "agent.ash",
+            "Ash Arizonan",
+            licensed_states=["AZ"],
+            service_area_zip_prefixes=["850", "852"],
             performance_score=0.74,
         )
         agents["monty"] = self._make_agent(
-            "agent.monty", "Monty Multistate",
-            licensed_states=["CO", "TX"], service_area_zip_prefixes=["802", "803", "750"],
-            performance_score=0.55, capacity=8,
+            "agent.monty",
+            "Monty Multistate",
+            licensed_states=["CO", "TX"],
+            service_area_zip_prefixes=["802", "803", "750"],
+            performance_score=0.55,
+            capacity=8,
         )
         agents["dell"] = self._make_agent(
-            "agent.dell", "Dell Dallasworth",
-            licensed_states=["TX"], service_area_zip_prefixes=["750", "751", "752"],
+            "agent.dell",
+            "Dell Dallasworth",
+            licensed_states=["TX"],
+            service_area_zip_prefixes=["750", "751", "752"],
             performance_score=0.72,
         )
         agents["peach"] = self._make_agent(
-            "agent.peach", "Peach Atlantez",
-            licensed_states=["GA"], service_area_zip_prefixes=["303", "300"],
+            "agent.peach",
+            "Peach Atlantez",
+            licensed_states=["GA"],
+            service_area_zip_prefixes=["303", "300"],
             performance_score=0.83,
         )
         agents["brook"] = self._make_agent(
-            "agent.brook", "Brook Buckhead",
-            licensed_states=["GA"], service_area_zip_prefixes=["303", "300"],
-            performance_score=None, active_referral_count=0,
+            "agent.brook",
+            "Brook Buckhead",
+            licensed_states=["GA"],
+            service_area_zip_prefixes=["303", "300"],
+            performance_score=None,
+            active_referral_count=0,
         )
         agents["coral"] = self._make_agent(
-            "agent.coral", "Coral Keysworth",
-            licensed_states=["FL"], service_area_zip_prefixes=["331", "328"],
+            "agent.coral",
+            "Coral Keysworth",
+            licensed_states=["FL"],
+            service_area_zip_prefixes=["331", "328"],
             performance_score=0.79,
         )
         agents["reed"] = self._make_agent(
-            "agent.reed", "Reed Orlandale",
-            licensed_states=["FL"], service_area_zip_prefixes=["331", "328"],
+            "agent.reed",
+            "Reed Orlandale",
+            licensed_states=["FL"],
+            service_area_zip_prefixes=["331", "328"],
             performance_score=0.61,
         )
         agents["sage"] = self._make_agent(
-            "agent.sage", "Sage Scottsdale",
-            licensed_states=["AZ"], service_area_zip_prefixes=["850", "852"],
-            performance_score=0.87, capacity=4,
+            "agent.sage",
+            "Sage Scottsdale",
+            licensed_states=["AZ"],
+            service_area_zip_prefixes=["850", "852"],
+            performance_score=0.87,
+            capacity=4,
         )
         agents["quill"] = self._make_agent(
-            "agent.quill", "Quill Tempeston",
-            licensed_states=["AZ"], service_area_zip_prefixes=["850", "852"],
+            "agent.quill",
+            "Quill Tempeston",
+            licensed_states=["AZ"],
+            service_area_zip_prefixes=["850", "852"],
             performance_score=0.58,
         )
         return agents
@@ -253,7 +321,10 @@ class Command(BaseCommand):
         # Fresh Denver referrals with live offers (the working queue).
         for minutes_ago in (2, 4, 6):
             referral = self._new_referral(
-                rng, now, state="CO", minutes_ago=minutes_ago,
+                rng,
+                now,
+                state="CO",
+                minutes_ago=minutes_ago,
                 estimated_price=rng.randrange(300_000, 850_000, 25_000),
                 intent_level=Referral.Intent.HOT,
             )
@@ -261,7 +332,10 @@ class Command(BaseCommand):
 
         # A live referral whose phone the notification gateway will reject.
         bad_phone = self._new_referral(
-            rng, now, state="CO", minutes_ago=3,
+            rng,
+            now,
+            state="CO",
+            minutes_ago=3,
             customer_phone="555-0157 ext. TBD",
             estimated_price=525_000,
             intent_level=Referral.Intent.HOT,
@@ -293,12 +367,20 @@ class Command(BaseCommand):
                     offer.status = Offer.Status.DECLINED
                     offer.responded_at = now - timedelta(minutes=minutes_ago - 8)
                     offer.save(update_fields=["status", "responded_at"])
-                    record_event(referral, ReferralEvent.Type.OFFER_DECLINED,
-                                 actor=offer.agent.name, payload={"offer_id": offer.id})
+                    record_event(
+                        referral,
+                        ReferralEvent.Type.OFFER_DECLINED,
+                        actor=offer.agent.name,
+                        payload={"offer_id": offer.id},
+                    )
                 else:
                     Offer.objects.filter(pk=offer.pk).update(status=Offer.Status.EXPIRED)
-                    record_event(referral, ReferralEvent.Type.OFFER_EXPIRED,
-                                 actor="system", payload={"offer_id": offer.id})
+                    record_event(
+                        referral,
+                        ReferralEvent.Type.OFFER_EXPIRED,
+                        actor="system",
+                        payload={"offer_id": offer.id},
+                    )
 
         # A cleanly assigned referral.
         assigned = self._new_referral(rng, now, state="CO", minutes_ago=60)
@@ -311,8 +393,12 @@ class Command(BaseCommand):
         assigned.status = Referral.Status.ASSIGNED
         assigned.assigned_agent = winner.agent
         assigned.save(update_fields=["status", "assigned_agent"])
-        record_event(assigned, ReferralEvent.Type.CLAIM_SUCCEEDED,
-                     actor=winner.agent.name, payload={"offer_id": winner.id})
+        record_event(
+            assigned,
+            ReferralEvent.Type.CLAIM_SUCCEEDED,
+            actor=winner.agent.name,
+            payload={"offer_id": winner.id},
+        )
 
         # The double-claim incident Operations reported: two active claims.
         conflicted = self._new_referral(rng, now, state="CO", minutes_ago=45)
@@ -324,8 +410,12 @@ class Command(BaseCommand):
                 offer.responded_at = now - timedelta(minutes=mins)
                 offer.save(update_fields=["status", "responded_at"])
                 Claim.objects.create(referral=conflicted, agent=offer.agent)
-                record_event(conflicted, ReferralEvent.Type.CLAIM_SUCCEEDED,
-                             actor=offer.agent.name, payload={"offer_id": offer.id})
+                record_event(
+                    conflicted,
+                    ReferralEvent.Type.CLAIM_SUCCEEDED,
+                    actor=offer.agent.name,
+                    payload={"offer_id": offer.id},
+                )
             conflicted.status = Referral.Status.ASSIGNED
             conflicted.assigned_agent = second.agent
             conflicted.save(update_fields=["status", "assigned_agent"])
@@ -349,18 +439,30 @@ class Command(BaseCommand):
                     status=Offer.Status.ACCEPTED,
                     responded_at=now - timedelta(minutes=minutes_ago - 6),
                 )
-                Claim.objects.create(referral=referral, agent=winner.agent, active=False,
-                                     released_at=now - timedelta(minutes=minutes_ago - 500))
+                Claim.objects.create(
+                    referral=referral,
+                    agent=winner.agent,
+                    active=False,
+                    released_at=now - timedelta(minutes=minutes_ago - 500),
+                )
                 referral.status = Referral.Status.CLOSED
                 referral.assigned_agent = winner.agent
                 referral.save(update_fields=["status", "assigned_agent"])
-                record_event(referral, ReferralEvent.Type.CLAIM_SUCCEEDED,
-                             actor=winner.agent.name, payload={"offer_id": winner.id})
+                record_event(
+                    referral,
+                    ReferralEvent.Type.CLAIM_SUCCEEDED,
+                    actor=winner.agent.name,
+                    payload={"offer_id": winner.id},
+                )
             elif offers:
                 Offer.objects.filter(referral=referral).update(status=Offer.Status.EXPIRED)
                 for offer in offers:
-                    record_event(referral, ReferralEvent.Type.OFFER_EXPIRED,
-                                 actor="system", payload={"offer_id": offer.id})
+                    record_event(
+                        referral,
+                        ReferralEvent.Type.OFFER_EXPIRED,
+                        actor="system",
+                        payload={"offer_id": offer.id},
+                    )
                 referral.status = Referral.Status.CLOSED
                 referral.save(update_fields=["status"])
         assert agent_list

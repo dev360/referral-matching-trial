@@ -4,7 +4,6 @@ from django.urls import path
 from . import views, webhooks
 
 
-
 urlpatterns = [
     path("webhooks/referrals/", webhooks.intake_referral, name="intake-referral"),
     path("offers/mine/", views.my_offers, name="my-offers"),

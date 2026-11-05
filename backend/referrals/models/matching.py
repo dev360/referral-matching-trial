@@ -18,6 +18,7 @@ WEIGHT_PERFORMANCE = 0.30
 WEIGHT_CAPACITY = 0.20
 ELIGIBILITY_PENALTY = 0.10
 
+
 # TODO: This is beefier, would deservice its own class etc; doesn't fit as neat on domain model
 def score_agent(agent, referral):
     """Score an agent for a referral. Higher is better."""

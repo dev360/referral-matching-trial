@@ -12,6 +12,7 @@ class ClaimError(Exception):
         super().__init__(message)
         self.code = code
 
+
 # TODO: I would move this into the domain model; if it gets too crazy, turn it into
 # a service or orchestration class.
 def claim_offer(offer, agent):

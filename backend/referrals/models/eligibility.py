@@ -3,7 +3,8 @@
 An agent may work a referral only when every rule below holds.
 """
 
-# TODO:.. this smells like validation / eligibility code.. 
+
+# TODO:.. this smells like validation / eligibility code..
 # May come back to this and move it later.
 def evaluate(agent, referral):
     """Return a snapshot dict: {"eligible": bool, "reasons": [str, ...]}."""
