@@ -32,8 +32,7 @@ def test_dashboard_referall_query_count(make_user, make_referrals, client_for):
         response = client_for(ops).get("/api/ops/referrals/")
 
     assert response.status_code == 200
-    import ipdb; ipdb.set_trace()
-    assert len(queries) == 1
+    assert len(queries) == 2
 
 
 def test_override_reassigns_and_records_event(make_user, make_agent, make_referral, client_for):

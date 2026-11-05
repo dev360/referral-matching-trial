@@ -7,7 +7,8 @@ from rest_framework.response import Response
 
 from referrals import claims
 from referrals.events import record_event
-from referrals.models import Claim, Offer, Referral, ReferralEvent
+from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent
+
 from referrals.api.serializers import (
     OfferSerializer,
     OpsReferralSerializer,
@@ -114,7 +115,6 @@ def ops_referral_events(request, referral_id):
 @permission_classes([IsOpsUser])
 def ops_override(request, referral_id):
     """Operations reassigns (or unassigns) a referral."""
-    from .models import Agent
 
     referral = get_object_or_404(Referral, pk=referral_id)
     agent_id = request.data.get("agent_id")

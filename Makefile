@@ -25,6 +25,9 @@ seed:
 shell:
 	cd backend && $(PY) manage.py shell
 
+makemigrations:
+	cd backend && $(PY) manage.py makemigrations
+
 dev:
 	@trap 'kill 0' INT TERM; \
 	( cd backend && $(PY) manage.py runserver 0.0.0.0:8000 ) & \

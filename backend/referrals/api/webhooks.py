@@ -41,7 +41,6 @@ def intake_referral(request):
         )
 
     event_id = str(payload["event_id"])
-    # Check if an event has been processed in postgres:
     if ReferralEvent.event_exists(event_id):
         logger.info("duplicate delivery ignored: event_id=%s", event_id)
         return Response({"status": "duplicate_ignored", "event_id": event_id})
@@ -64,7 +63,6 @@ def intake_referral(request):
     )
 
     offers = matching.build_offers(referral)
-    _PROCESSED_EVENT_IDS.add(event_id)
 
     logger.info(
         "referral ingested: event_id=%s external_id=%s offers=%d",

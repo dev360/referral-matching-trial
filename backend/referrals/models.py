@@ -1,9 +1,6 @@
 from django.conf import settings
 from django.db import models
 
-from django.utils.functional import classproperty
-
-
 
 class Agent(models.Model):
     user = models.OneToOneField(
@@ -102,16 +99,15 @@ class ReferralEvent(models.Model):
 
     referral = models.ForeignKey(Referral, on_delete=models.CASCADE, related_name="events")
     event_type = models.CharField(max_length=32, choices=Type.choices)
-    event_id = models.CharField(max_length=32, unique=True, db_index=True)
+    event_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
     actor = models.CharField(max_length=120, blank=True, default="")
     payload = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-    # This is perhaps a little bit rails-esque but I went for it.
-    @classproperty
+    # This is perhaps a little bit too rails-esque but I went for it.
+    @classmethod
     def event_exists(cls, event_id):
-        return cls.objects.filter(event_id).exists()
+        return cls.objects.filter(event_id=event_id).exists()
 
     class Meta:
         ordering = ["created_at"]
