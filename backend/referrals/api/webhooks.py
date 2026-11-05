@@ -3,12 +3,13 @@
 import logging
 
 from django.conf import settings
+from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
 from referrals.models import matching
-from referrals.models.events import record_event
+from referrals.models.events import record_event, EventExists
 from referrals.models import Referral, ReferralEvent
 
 logger = logging.getLogger("referrals.webhooks")
@@ -45,22 +46,31 @@ def intake_referral(request):
         logger.info("duplicate delivery ignored: event_id=%s", event_id)
         return Response({"status": "duplicate_ignored", "event_id": event_id})
 
-    referral = Referral.objects.create(
-        external_id=payload["external_id"],
-        customer_name=payload["customer_name"],
-        customer_email=payload["customer_email"],
-        customer_phone=payload["customer_phone"],
-        state=payload["state"],
-        postal_code=payload["postal_code"],
-        estimated_price=int(payload["estimated_price"]),
-        intent_level=payload.get("intent_level", Referral.Intent.WARM),
-    )
-    record_event(
-        referral,
-        ReferralEvent.Type.REFERRAL_RECEIVED,
-        actor="intake-webhook",
-        payload={"event_id": event_id},
-    )
+    try:
+        with transaction.atomic():
+            referral = Referral.objects.create(
+                external_id=payload["external_id"],
+                customer_name=payload["customer_name"],
+                customer_email=payload["customer_email"],
+                customer_phone=payload["customer_phone"],
+                state=payload["state"],
+                postal_code=payload["postal_code"],
+                estimated_price=int(payload["estimated_price"]),
+                intent_level=payload.get("intent_level", Referral.Intent.WARM),
+            )
+            record_event(
+                referral,
+                ReferralEvent.Type.REFERRAL_RECEIVED,
+                actor="intake-webhook",
+                payload={"event_id": event_id},
+            )
+    except EventExists as ex:
+        # This would be a pretty rare ABA race condition, but
+        # by using this uniqueness catch, our code will be correct:
+        logger.info(
+            "duplicate delivery ignored: event_id=%s referral_event=%s", event_id, ex.event.pk
+        )
+        return Response({"status": "duplicate_ignored", "event_id": event_id})
 
     offers = matching.build_offers(referral)
 
