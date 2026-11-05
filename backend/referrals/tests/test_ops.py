@@ -124,7 +124,12 @@ def test_dashboard_referall_query_count(make_user, make_referrals, client_for):
         response = client_for(ops).get("/api/ops/referrals/")
 
     assert response.status_code == 200
-    assert len(queries) == 2
+    # The math here is:
+    # - 1 query authentication
+    # - 1 query for all referrals
+    # - 1 query for all events belonging to said referrals
+    # - 1 query for all offers belonging to said referrals
+    assert len(queries) == 4
 
 
 def test_override_reassigns_and_records_event(make_user, make_agent, make_referral, client_for):

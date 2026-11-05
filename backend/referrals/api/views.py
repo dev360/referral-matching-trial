@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -14,6 +15,8 @@ from referrals.api.serializers import (
     ReferralEventSerializer,
     ReferralSerializer,
 )
+
+
 class IsOpsUser(BasePermission):
     message = "Operations access required."
 
@@ -21,6 +24,7 @@ class IsOpsUser(BasePermission):
         return bool(request.user and request.user.is_staff)
 
 
+# TODO: Consider putting in mw; request.agent_profile
 def _agent_for(request):
     return getattr(request.user, "agent_profile", None)
 
@@ -68,12 +72,8 @@ def claim_offer(request, offer_id):
     try:
         claim = claims.claim_offer(offer, agent)
     except claims.ClaimError as exc:
-        return Response(
-            {"detail": str(exc), "code": exc.code}, status=status.HTTP_400_BAD_REQUEST
-        )
-    return Response(
-        {"status": "claimed", "claim_id": claim.id, "referral_id": offer.referral_id}
-    )
+        return Response({"detail": str(exc), "code": exc.code}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"status": "claimed", "claim_id": claim.id, "referral_id": offer.referral_id})
 
 
 @api_view(["POST"])
@@ -86,9 +86,7 @@ def decline_offer(request, offer_id):
     try:
         claims.decline_offer(offer, agent)
     except claims.ClaimError as exc:
-        return Response(
-            {"detail": str(exc), "code": exc.code}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"detail": str(exc), "code": exc.code}, status=status.HTTP_400_BAD_REQUEST)
     return Response({"status": "declined", "offer_id": offer.id})
 
 
@@ -98,7 +96,18 @@ def ops_referrals(request):
     # First off: Not at all a fan of function based views for DRF; it takes away the primary way
     # that you override functionality (by overriding classes). Theres a learning curve, yes,
     # but once you understand it, you understand the request cycle.
-    referrals = Referral.objects.all().order_by("-created_at").select_related('assigned_agent').prefetch_related('offers')
+    referrals = (
+        Referral.objects.all()
+        .order_by("-created_at")
+        .select_related("assigned_agent")
+        .prefetch_related(
+            Prefetch(
+                "offers",
+                queryset=Offer.objects.select_related("agent").order_by("-offered_at")
+            ),
+            "events",
+        )
+    )
     response = Response(OpsReferralSerializer(referrals, many=True).data)
     return response
 
