@@ -5,9 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
-from referrals import claims
-from referrals.events import record_event
-from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent
+from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent, claims
+from referrals.models.events import record_event
 
 from referrals.api.serializers import (
     OfferSerializer,

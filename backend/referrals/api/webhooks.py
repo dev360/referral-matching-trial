@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
-from referrals import matching
-from referrals.events import record_event
+from referrals.models import matching
+from referrals.models.events import record_event
 from referrals.models import Referral, ReferralEvent
 
 logger = logging.getLogger("referrals.webhooks")

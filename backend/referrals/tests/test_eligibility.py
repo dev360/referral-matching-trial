@@ -1,6 +1,6 @@
 import pytest
 
-from referrals import eligibility
+from referrals.models import eligibility
 
 pytestmark = pytest.mark.django_db
 

@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from . import notifications
 from .events import record_event
-from .models import Claim, Offer, Referral, ReferralEvent
+from .base import Claim, Offer, Referral, ReferralEvent
 
 
 class ClaimError(Exception):
@@ -12,7 +12,8 @@ class ClaimError(Exception):
         super().__init__(message)
         self.code = code
 
-
+# TODO: I would move this into the domain model; if it gets too crazy, turn it into
+# a service or orchestration class.
 def claim_offer(offer, agent):
     """Accept an offer on behalf of the agent and assign the referral."""
     referral = offer.referral

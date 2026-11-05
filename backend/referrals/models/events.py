@@ -1,8 +1,8 @@
 """Audit/event trail helpers."""
 
-from .models import ReferralEvent
+from .base import ReferralEvent
 
-
+# TODO: Same, would move this into the domain model.
 def record_event(referral, event_type, actor="", payload=None, **kwargs):
     event_id = None
     # Only track event_id when referral is received:
