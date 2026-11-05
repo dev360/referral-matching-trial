@@ -7,14 +7,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
-from . import matching
-from .events import record_event
-from .models import Referral, ReferralEvent
+from referrals import matching
+from referrals.events import record_event
+from referrals.models import Referral, ReferralEvent
 
 logger = logging.getLogger("referrals.webhooks")
-
-# Events we have already processed, so upstream retries do not create duplicates.
-_PROCESSED_EVENT_IDS: set[str] = set()
 
 REQUIRED_FIELDS = [
     "event_id",
@@ -44,7 +41,8 @@ def intake_referral(request):
         )
 
     event_id = str(payload["event_id"])
-    if event_id in _PROCESSED_EVENT_IDS:
+    # Check if an event has been processed in postgres:
+    if ReferralEvent.event_exists(event_id):
         logger.info("duplicate delivery ignored: event_id=%s", event_id)
         return Response({"status": "duplicate_ignored", "event_id": event_id})
 

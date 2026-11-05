@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Agent, Claim, Offer, Referral, ReferralEvent
+from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent
 
 
 class AgentSummarySerializer(serializers.ModelSerializer):

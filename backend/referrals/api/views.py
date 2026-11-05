@@ -5,17 +5,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
-from . import claims
-from .events import record_event
-from .models import Claim, Offer, Referral, ReferralEvent
-from .serializers import (
+from referrals import claims
+from referrals.events import record_event
+from referrals.models import Claim, Offer, Referral, ReferralEvent
+from referrals.api.serializers import (
     OfferSerializer,
     OpsReferralSerializer,
     ReferralEventSerializer,
     ReferralSerializer,
 )
-
-
 class IsOpsUser(BasePermission):
     message = "Operations access required."
 
@@ -97,8 +95,12 @@ def decline_offer(request, offer_id):
 @api_view(["GET"])
 @permission_classes([IsOpsUser])
 def ops_referrals(request):
-    referrals = Referral.objects.all().order_by("-created_at")
-    return Response(OpsReferralSerializer(referrals, many=True).data)
+    # First off: Not at all a fan of function based views for DRF; it takes away the primary way
+    # that you override functionality (by overriding classes). Theres a learning curve, yes,
+    # but once you understand it, you understand the request cycle.
+    referrals = Referral.objects.all().order_by("-created_at").select_related('assigned_agent').prefetch_related('offers')
+    response = Response(OpsReferralSerializer(referrals, many=True).data)
+    return response
 
 
 @api_view(["GET"])

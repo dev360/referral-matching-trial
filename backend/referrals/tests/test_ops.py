@@ -1,8 +1,13 @@
 import pytest
 
+from django.db import connection
+
+from django.test.utils import CaptureQueriesContext
+
 from referrals.models import Claim, Referral, ReferralEvent
 
 pytestmark = pytest.mark.django_db
+
 
 
 def test_dashboard_requires_ops_role(make_agent, client_for):
@@ -18,6 +23,17 @@ def test_dashboard_lists_referrals(make_user, make_referral, client_for):
     assert response.status_code == 200
     assert len(response.data) == 1
     assert response.data[0]["external_id"] == "lead-test-1"
+
+
+def test_dashboard_referall_query_count(make_user, make_referrals, client_for):
+    ops = make_user("ops.test", is_staff=True)
+    make_referrals()
+    with CaptureQueriesContext(connection) as queries:
+        response = client_for(ops).get("/api/ops/referrals/")
+
+    assert response.status_code == 200
+    import ipdb; ipdb.set_trace()
+    assert len(queries) == 1
 
 
 def test_override_reassigns_and_records_event(make_user, make_agent, make_referral, client_for):

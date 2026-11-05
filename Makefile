@@ -40,7 +40,7 @@ dev-frontend:
 test: test-backend test-frontend
 
 test-backend:
-	cd backend && $(PY) -m pytest referrals/tests
+	cd backend && PYTHONBREAKPOINT=ipdb.set_trace $(PY) -m pytest referrals/tests -s
 
 test-frontend:
 	cd frontend && npm test

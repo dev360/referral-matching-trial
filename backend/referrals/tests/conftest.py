@@ -56,6 +56,24 @@ def make_referral(db):
 
     return _make
 
+@pytest.fixture
+def make_referrals(db):
+    def _make(**kwargs):
+        for i in range(10):
+            defaults = dict(
+                external_id=f"lead-test-{i}",
+                customer_name=f"Casey Example {i}",
+                customer_email="casey-{i}.example@example.com",
+                customer_phone="555-010{i}",
+                state="CO",
+                postal_code=f"8020{i}",
+                estimated_price=500_000,
+            )
+            defaults.update(kwargs)
+            referral = Referral.objects.create(**defaults)
+
+    return _make
+
 
 @pytest.fixture
 def client_for():
