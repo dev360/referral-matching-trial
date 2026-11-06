@@ -13,9 +13,8 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
-from referrals import matching
-from referrals.events import record_event
-from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent
+from referrals.models import Agent, Claim, Offer, Referral, ReferralEvent, matching
+from referrals.models.events import record_event
 
 FIRST_NAMES = [
     "Avery",
@@ -300,7 +299,7 @@ class Command(BaseCommand):
             referral,
             ReferralEvent.Type.REFERRAL_RECEIVED,
             actor="intake-webhook",
-            payload={"event_id": f"evt-{referral.external_id}"},
+            payload={"event_id": f"evt-{referral.external_id}-{referral.pk}"},
         )
         return referral
 
@@ -355,8 +354,17 @@ class Command(BaseCommand):
         )
         dup_one = self._new_referral(rng, now, minutes_ago=95, **dup_kwargs)
         self._offer_and_backdate(dup_one, 94, now)
-        dup_two = self._new_referral(rng, now, minutes_ago=93, **dup_kwargs)
-        self._offer_and_backdate(dup_two, 92, now)
+        # The retry is kept as a duplicate rather than a second live referral, matching
+        # what migration 0004 does to existing data. It gets no offers of its own.
+        dup_two = self._new_referral(
+            rng, now, minutes_ago=93, status=Referral.Status.DUPLICATE, **dup_kwargs
+        )
+        record_event(
+            dup_two,
+            ReferralEvent.Type.MARKED_DUPLICATE,
+            actor="intake-webhook",
+            payload={"duplicate_of": dup_one.pk, "external_id": dup_one.external_id},
+        )
 
         # Referrals stalled after every offer was declined or expired.
         for minutes_ago in (240, 180, 130):

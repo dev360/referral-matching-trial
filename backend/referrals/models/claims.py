@@ -32,6 +32,8 @@ def claim_offer(offer, agent):
         raise ClaimError("This offer has expired.", code="offer_expired")
     if referral.status == Referral.Status.ASSIGNED:
         raise ClaimError("This referral has already been claimed.", code="already_claimed")
+    if referral.status == Referral.Status.DUPLICATE:
+        raise ClaimError("This referral is a duplicate.", code="duplicate_referral")
     if Claim.objects.filter(referral=referral, active=True).exists():
         raise ClaimError("This referral has already been claimed.", code="already_claimed")
 

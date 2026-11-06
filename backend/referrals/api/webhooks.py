@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from referrals.models import matching
 from referrals.models.events import record_event, EventExists
+from referrals.models.referrals import ReferralExists, create_referral
 from referrals.models import Referral, ReferralEvent
 
 logger = logging.getLogger("referrals.webhooks")
@@ -48,16 +49,23 @@ def intake_referral(request):
 
     try:
         with transaction.atomic():
-            referral = Referral.objects.create(
-                external_id=payload["external_id"],
-                customer_name=payload["customer_name"],
-                customer_email=payload["customer_email"],
-                customer_phone=payload["customer_phone"],
-                state=payload["state"],
-                postal_code=payload["postal_code"],
-                estimated_price=int(payload["estimated_price"]),
-                intent_level=payload.get("intent_level", Referral.Intent.WARM),
-            )
+            created = True
+            try:
+                referral = create_referral(
+                    external_id=payload["external_id"],
+                    customer_name=payload["customer_name"],
+                    customer_email=payload["customer_email"],
+                    customer_phone=payload["customer_phone"],
+                    state=payload["state"],
+                    postal_code=payload["postal_code"],
+                    estimated_price=int(payload["estimated_price"]),
+                    intent_level=payload.get("intent_level", Referral.Intent.WARM),
+                )
+            except ReferralExists as ex:
+                # Another delivery for a lead we already have: reuse its referral.
+                referral = ex.referral
+                created = False
+
             record_event(
                 referral,
                 ReferralEvent.Type.REFERRAL_RECEIVED,
@@ -71,6 +79,12 @@ def intake_referral(request):
             "duplicate delivery ignored: event_id=%s referral_event=%s", event_id, ex.event.pk
         )
         return Response({"status": "duplicate_ignored", "event_id": event_id})
+
+    if not created:
+        logger.info(
+            "duplicate lead ignored: event_id=%s external_id=%s", event_id, referral.external_id
+        )
+        return Response({"status": "duplicate_ignored", "referral_id": referral.id})
 
     offers = matching.build_offers(referral)
 

@@ -28,6 +28,7 @@ class Referral(models.Model):
         OFFERED = "offered"
         ASSIGNED = "assigned"
         CLOSED = "closed"
+        DUPLICATE = "duplicate"
 
     class Intent(models.TextChoices):
         BROWSING = "browsing"
@@ -47,6 +48,16 @@ class Referral(models.Model):
         Agent, null=True, blank=True, on_delete=models.SET_NULL, related_name="assigned_referrals"
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            # One live referral per upstream lead; duplicates are kept for the audit trail.
+            models.UniqueConstraint(
+                fields=["external_id"],
+                condition=~models.Q(status="duplicate"),
+                name="uniq_referral_external_id_unless_duplicate",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.external_id} ({self.state} {self.postal_code})"
@@ -96,6 +107,7 @@ class ReferralEvent(models.Model):
         OFFER_DECLINED = "offer_declined"
         OFFER_EXPIRED = "offer_expired"
         OPS_OVERRIDE = "ops_override"
+        MARKED_DUPLICATE = "marked_duplicate"
 
     referral = models.ForeignKey(Referral, on_delete=models.CASCADE, related_name="events")
     event_type = models.CharField(max_length=32, choices=Type.choices)
