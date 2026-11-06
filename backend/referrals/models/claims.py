@@ -70,6 +70,7 @@ def claim_offer(offer, agent):
 def decline_offer(offer, agent):
     """Record that the agent passed on the offer."""
     with transaction.atomic():
+        offer = Offer.objects.select_for_update().get(pk=offer.pk)
         if offer.status != Offer.Status.PENDING:
             raise ClaimError("This offer is no longer open.", code="offer_not_open")
 
